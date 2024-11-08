@@ -1,0 +1,60 @@
+Script started on Thu Nov  7 19:46:17 2024
+/dev/fd/12:18: command not found: compdef
+[1m[7m%[27m[1m[0m                                                                                                   [0m[27m[24m[Jlangtowl@MacBookPro scheduler % [K[?2004hmmake[?2004l
+g++ -Wall -std=c++11 -c main.cpp -o main.o
+g++ -Wall -std=c++11 -c instruction.cpp -o instruction.o
+[1minstruction.cpp:129:9: [0m[0;1;35mwarning: [0m[1mvariable 'sum' is uninitialized when used here [-Wuninitialized][0m
+  129 |         sum += vector[i];[0m
+      | [0;1;32m        ^~~
+[0m[1minstruction.cpp:125:12: [0m[0;1;30mnote: [0minitialize the variable 'sum' to silence this warning[0m
+  125 |     int sum;[0m
+      | [0;1;32m           ^
+[0m      | [0;32m            = 0
+[0m1 warning generated.
+g++ main.o instruction.o -o run
+[1m[7m%[27m[1m[0m                                                                                                   [0m[27m[24m[Jlangtowl@MacBookPro scheduler % [K[?2004h../run[?2004l
+Contents of source file:
+
+Mouse 3 1
+Paint 2 2
+NN 15 0
+Word 8 4
+
+Scheduled with First In First Out:
+
+1 > NN 15 0
+2 > Mouse 3 1
+3 > Paint 2 2
+4 > Word 8 4
+
+1 > ###############
+2 > _______________###
+3 > __________________##
+4 > ____________________########
+
+Scheduled with Shortest Job First:
+
+1 > Paint 2 2
+2 > Mouse 3 1
+3 > Word 8 4
+4 > NN 15 0
+
+1 > ##
+2 > __###
+3 > _____########
+4 > _____________###############
+
+Scheduled with Round Robin:
+
+1 > NN 15 0
+2 > Mouse 3 1
+3 > Paint 2 2
+4 > Word 8 4
+
+1 > #___#___#___#___#___#___#___#___#___#___#___#___#___#___#
+2 > _#___#___#
+3 > __#___#
+4 > ___#___#___#___#___#___#___#___#
+[1m[7m%[27m[1m[0m                                                                                                   [0m[27m[24m[Jlangtowl@MacBookPro scheduler % [K[?2004heexit[?2004l
+
+Script done on Thu Nov  7 19:46:27 2024
