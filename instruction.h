@@ -17,7 +17,6 @@ private:
     int burst_duration;
     int arival_time;
 public:
-
     // Desc: Class constructor, takes in name, duration of burst, and instruction arival time
     // Auth: Lang Towl
     // Date: 11/7/2024
@@ -44,24 +43,19 @@ public:
 // Date: 11/7/2024
 std::vector<Instruction> sort_based_on_arival(const std::vector<Instruction>& instructions);
 
-// Desc: Returns sorted array in case of SJF
+// Desc: Print out shedule graph for FIFO
 // Auth: Lang Towl
 // Date: 11/7/2024
-std::vector<Instruction> sort_based_on_burst(const std::vector<Instruction>& instructions);
+void print_fifo(const std::vector<Instruction>& instructions);
 
-// Desc: Print out shedule graph for FIFO and SJF
+// Desc: Print out shedule graph for SJF
 // Auth: Lang Towl
 // Date: 11/7/2024
-void print_fifo_and_sjf(const std::vector<Instruction>& instructions);
+void print_sjf(const std::vector<Instruction>& instructions);
 
-// Desc: Print out shedule graph for FIFO and SJF
+// Desc: Print out shedule graph for RR
 // Auth: Lang Towl
 // Date: 11/7/2024
 void print_rr(const std::vector<Instruction>& instructions);
-
-// Desc: Helper function for print_rr()
-// Auth: Lang Towl
-// Date: 11/7/2024
-bool is_vector_empty(const std::vector<int>& vector);
 
 #endif

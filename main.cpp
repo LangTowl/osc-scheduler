@@ -61,7 +61,7 @@ int main(){
     }
 
     // Graph FIFO instructions
-    print_fifo_and_sjf(fifo_instructions);
+    print_fifo(fifo_instructions);
 
     std::cout << std::endl;
 
@@ -70,15 +70,17 @@ int main(){
     std::cout << "Scheduled with Shortest Job First:" << std::endl << std::endl;
 
     // Sort array based on SJF
-    std::vector<Instruction> sjf_instructions = sort_based_on_burst(instructions);
+    std::vector<Instruction> sjf_instructions = sort_based_on_arival(instructions);
 
     // Print out reference
     for (int i = 0; i < sjf_instructions.size(); i++) {
         std::cout << i + 1 << " > "<< sjf_instructions[i].get_name() << " " << sjf_instructions[i].get_burst_duration() << " " << sjf_instructions[i].get_arival_time() << std::endl;
     }
 
+    std::cout << std::endl;
+
     // Graph SJF instructions
-    print_fifo_and_sjf(sjf_instructions);
+    print_sjf(sjf_instructions);
 
     std::cout << std::endl;
 

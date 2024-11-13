@@ -31,7 +31,7 @@ int Instruction::get_arival_time() const {
     return this->arival_time;
 }
 
-// Desc: Returns sorted array in case of FIFO and RR 
+// Desc: Returns sorted array based on arival time
 // Auth: Lang Towl
 // Date: 11/7/2024
 std::vector<Instruction> sort_based_on_arival(const std::vector<Instruction>& instructions) {
@@ -54,33 +54,10 @@ std::vector<Instruction> sort_based_on_arival(const std::vector<Instruction>& in
     return temp_instructions;
 }
 
-// Desc: Returns sorted array in case of SJF
+// Desc: Print out shedule graph for FIFO
 // Auth: Lang Towl
 // Date: 11/7/2024
-std::vector<Instruction> sort_based_on_burst(const std::vector<Instruction>& instructions) {
-    // Make temporary copy of array to be returned later
-    std::vector<Instruction> temp_instructions = instructions;
-
-    // Count the number of instructions in vector
-    int n = temp_instructions.size();
-
-    // Bubble sort algorithm
-    for (int i = 0; i < n - 1; i++) {
-        for (int j = 0; j < n - 1; j++) {
-            if (temp_instructions[j].get_burst_duration() > temp_instructions[j + 1].get_burst_duration()) {
-                std::swap(temp_instructions[j], temp_instructions[j + 1]);
-            }
-        }
-    }
-
-    // Return sorted vector
-    return temp_instructions;
-}
-
-// Desc: Print out shedule graph for FIFO and SJF
-// Auth: Lang Towl
-// Date: 11/7/2024
-void print_fifo_and_sjf(const std::vector<Instruction>& instructions) {
+void print_fifo(const std::vector<Instruction>& instructions) {
     // Count number of instructions in vector
     int n = instructions.size();
 
@@ -90,10 +67,11 @@ void print_fifo_and_sjf(const std::vector<Instruction>& instructions) {
     // Manually load first wait time
     wait_times.push_back(0);
 
+    // Backfill wait times
     for (int i = 0; i < n; i++) {
         int temp = 0;
         for (int j = i; j >= 0; j--) {
-            temp += instructions[j].get_burst_duration();
+            temp += instructions[j].get_burst_duration() - instructions[i].get_arival_time();
         }
         wait_times.push_back(temp);
     }
@@ -104,6 +82,11 @@ void print_fifo_and_sjf(const std::vector<Instruction>& instructions) {
     for (int i = 0; i < n; i++) {
         std::cout << i + 1 << " > ";
 
+        // Print blank spaces to simulate arival time
+        for (int j = 0; j < instructions[i].get_arival_time(); j++) {
+            std::cout << " ";
+        }
+            
         // Print wait time
         for (int j = 0; j < wait_times[i]; j++) {
             std::cout << "_";
@@ -118,27 +101,61 @@ void print_fifo_and_sjf(const std::vector<Instruction>& instructions) {
     }
 }
 
-// Desc: Helper function for print_rr()
+// Desc: Print out shedule graph for FIFO
 // Auth: Lang Towl
 // Date: 11/7/2024
-bool is_vector_empty(const std::vector<int>& vector) {
-    int sum;
+void print_sjf(const std::vector<Instruction>& instructions) {
+    // Count number of instructions in vector
+    int n = instructions.size();
 
-    // Aggregate vector values
-    for (int i = 0; i < vector.size(); i++) {
-        sum += vector[i];
+    // ready queue to store instructions that are ready to be executed
+    std::vector<Instruction> ready_queue;
+
+    // Scheduler graph
+    std::vector<std::string> graph;
+
+    // Manually add first instruction to ready queue and open graph
+    ready_queue.push_back(instructions[0]);
+    graph.push_back("");
+
+    // Counter to track number of executions
+    int counter = 0;
+
+    // Counter to track instructions that have been added to the ready queue and the current instruction
+    int current_instruction = 0;
+    int next_instruction = 1;
+
+    while (ready_queue.empty() != true) {
+        // Check to see if new instruction is ready
+        if (instructions[next_instruction].get_arival_time() == counter) {
+            ready_queue.push_back(instructions[next_instruction]);
+            next_instruction++;
+            graph.push_back("");
+        }
+
+        graph[current_instruction] += "#";
+        ready_queue.erase(ready_queue.begin() + 0);
+
+        counter++;
     }
 
-    // If sum == 0, vector is empty
-    if (sum == 0) {
-        return true;
-    } 
 
-    // Otherwise, not empty
-    return false;
+    // Print out graph
+    for (int i = 0 ; i < graph.size(); i++) {
+        std::cout << graph[i] << std::endl;
+    }
+    /*
+    - Make vector to store initial instruction
+    - Start executing that instruction
+    - after each execution, check to see if the next instruction has arrive
+    - if it has, add it to vector
+    - check to see if new instruction has a shorter job then current instruction
+    - if it does, start executing it
+    - check to see if next instruciton is in, and if current instruction is longer then
+    */
 }
 
-// Desc: Print out shedule graph for FIFO and SJF
+// Desc: Print out shedule graph for RR
 // Auth: Lang Towl
 // Date: 11/7/2024
 void print_rr(const std::vector<Instruction>& instructions) {
@@ -153,14 +170,23 @@ void print_rr(const std::vector<Instruction>& instructions) {
     }
 
     // Print graph
+    int iterations = 0;
     for (int i = 0; i < n; i++) {
         std::cout << i + 1 << " > ";
 
         // While loop prints # when its programs 'turn' and _ otherwise
         int counter = 0;
         while (true) {
-            if (counter > 3) {
+            if (counter > (n - 1)) {
                 counter = 0;
+            }
+
+            if (iterations >= instructions[i].get_arival_time()) {
+                // Do nothing
+            } else {
+                iterations++;
+                std::cout << " ";
+                continue;
             }
 
             if (counter == i) {
@@ -179,6 +205,7 @@ void print_rr(const std::vector<Instruction>& instructions) {
             }
         }
 
+        iterations++;
         std::cout << std::endl;
     } 
 }
