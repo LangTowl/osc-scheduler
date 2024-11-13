@@ -61,22 +61,27 @@ void print_fifo(const std::vector<Instruction>& instructions) {
     // Count number of instructions in vector
     int n = instructions.size();
 
+    // Vector to store arrival time offset
+    std::vector<int> arrival_time_offset;
+
+    for (int i = 1; i < n; i++) {
+        arrival_time_offset.push_back(instructions[i].get_arival_time());
+    }
+
+    arrival_time_offset.push_back(0);
+
     // Vector to store wait times for each instruction
     std::vector<int> wait_times;
-
-    // Manually load first wait time
     wait_times.push_back(0);
 
     // Backfill wait times
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n - 1; i++) {
         int temp = 0;
         for (int j = i; j >= 0; j--) {
-            temp += instructions[j].get_burst_duration() - instructions[i].get_arival_time();
+            temp += (instructions[j].get_burst_duration());
         }
-        wait_times.push_back(temp);
+        wait_times.push_back(temp - arrival_time_offset[i]);
     }
-
-    std::cout << std::endl;
 
     // Print graph
     for (int i = 0; i < n; i++) {
