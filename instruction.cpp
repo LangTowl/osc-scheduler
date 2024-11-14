@@ -149,10 +149,11 @@ void print_sjf(const std::vector<Instruction>& instructions) {
         graph.push_back(std::to_string(i + 1) + " > ");
     }
 
-    // Loop to run continuosly 
+    // Loop to run until all bursts have been depleated 
     while (remaining_bursts != 0) {
         // Check to see if new instruction has arrived
         if (instructions[next_instruction].get_arival_time() == step) {
+            // Add instruction to ready queue & update next instruction
             ready_queue.push_back(instructions[next_instruction]);
             next_instruction++;
         }
@@ -160,24 +161,28 @@ void print_sjf(const std::vector<Instruction>& instructions) {
         // Determine index of shortest remianing bursts
         int current_instruction_index = -1;
         for (int i = 0; i < ready_queue.size(); i++) {
+            // Find shortest remaining instruction, skipping completed instructions
             if ((current_instruction_index == -1 || ready_queue[i].get_burst_duration() < ready_queue[current_instruction_index].get_burst_duration()) && ready_queue[i].get_burst_duration() != 0) {
                 current_instruction_index = i;
             }
         }
 
-        //dont use current instruction index to choose which row to print to create row variable to track
-        // instead of removing, just check to see if its zero and if it isthen dont set it to current
-
         // Fill graph based on current instruction
         if (current_instruction_index != -1) {
             for (int i = 0; i < n; i++) {
-                if (i <= ready_queue.size()) {
+                
+
+                if (i < ready_queue.size()) {
                     if (i == current_instruction_index && ready_queue[current_instruction_index].get_burst_duration() != 0) {
                         graph[i] += "#";
                         ready_queue[current_instruction_index].reduce_burst_duration(1);
                         remaining_bursts--;
                     } else {
-                        graph[i] += "_";
+                        if (ready_queue[i].get_burst_duration() == 0) {
+                            continue;
+                        } else {
+                            graph[i] += "_";
+                        }
                     }
                 } else {
                     graph[i] += " ";
@@ -188,79 +193,13 @@ void print_sjf(const std::vector<Instruction>& instructions) {
         step++;
     }
 
+    // Show graph for shortest job first
     for (int i = 0; i < graph.size(); i++) {
         std::cout << graph[i] << std::endl;
     }
 
     std::cout << std::endl;
 }
-
-/*
-// Count number of instructions in vector
-    int n = instructions.size();
-
-    // Count total iteration, current instruction, and next instruction
-    int step = 0;
-    int row = 0;
-    int next_instruction = 1;
-
-    // Instruction to store currently executing instruction
-    Instruction current_instruction = instructions[0];
-
-    // Ready queue to store instructions that are ready to be executed
-    std::vector<Instruction> ready_queue;
-
-    ready_queue.push_back(instructions[0]);
-    
-
-    // Generate empty graph based on number of instructions
-    std::vector<std::string> graph(n, "");
-
-    // Code to run while ready queue is not empty and there are bursts still needing execution
-    while (!ready_queue.empty() && next_instruction < n) {
-        // Check to see if a new instruction has arrived
-        if (instructions[next_instruction].get_arival_time() == step) {
-            // Add new instruction to ready queue
-            ready_queue.push_back(instructions[next_instruction]);
-            next_instruction++;
-        }
-
-        // Pick shortest instruction from ready queue
-        for (int i = 0; i < ready_queue.size(); i++) {
-            // Replace current instruction with instruction from ready queue
-            if (current_instruction.get_burst_duration() > ready_queue[i].get_burst_duration()) {
-                current_instruction = ready_queue[i];
-                row = i;
-            }
-        } 
-        
-        // Fill next line of graph
-        for (int i = 0; i < n; i++) {
-            if (i <= ready_queue.size()) {
-                if (i == row) {
-                    graph[row] += "#";
-                    ready_queue[row].reduce_burst_duration(1);
-
-                    // Remove instruction if its burst has been depleted
-                    if (ready_queue[row].get_burst_duration() <= 0) {
-                        ready_queue.erase(ready_queue.begin() + i);
-                    }
-                } else {
-                    graph[row] += "_";
-                }
-            } else {
-                graph[row] += " ";
-            }
-        }
-
-        step++;
-    }
-
-    // Print graph
-    for (int i = 0; i < graph.size(); i++) {
-        std::cout << i + 1 << " > " <<  graph[i] << std::endl;
-    }
-*/
 
 // Desc: Print out shedule graph for RR
 // Auth: Lang Towl
