@@ -247,19 +247,19 @@ void print_rr(const std::vector<Instruction>& instructions) {
         // Fill graph
         for (int i = 0; i < graph.size(); i++) {
             if (i < ready_queue.size()) {
-                if (i == row && ready_queue[row].get_burst_duration() != 0) {
-                    graph[row] += "#";
-                    ready_queue[row].reduce_burst_duration(1);
-                    remaining_bursts--;
+                if (ready_queue[i].get_burst_duration() != 0 && row == i) {
+                    graph[i] += "#";
+                    ready_queue[i].reduce_burst_duration(1);
+                    remaining_bursts -= 1;
                 } else {
-                    if (ready_queue[i].get_burst_duration() == 0) {
-                        continue;
+                    if (ready_queue[i].get_burst_duration() != 0) {
+                        graph[i] += "_";
                     } else {
-                        graph[row] += "_";
+                        graph[i] += "";
                     }
                 }
             } else {
-                graph[row] += " ";
+                graph[i] += " ";
             }
         }
         
@@ -276,3 +276,25 @@ void print_rr(const std::vector<Instruction>& instructions) {
         std::cout << std::endl;
     }
 }
+
+/*
+if (i < ready_queue.size()) {
+                if (i == row && ready_queue[i].get_burst_duration() != 0) {
+                    graph[i] += "#";
+                    ready_queue[i].reduce_burst_duration(1);
+                    remaining_bursts--;
+
+                    if (ready_queue[row].get_burst_duration() == 0) {
+                        row = (row + 1) % ready_queue.size();
+                    }
+                } else {
+                    if (ready_queue[i].get_burst_duration() == 0) {
+                        continue;
+                    } else {
+                        graph[row] += "_";
+                    }
+                }
+            } else {
+                graph[i] += " ";
+            }
+*/
