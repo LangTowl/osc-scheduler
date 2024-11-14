@@ -170,14 +170,15 @@ void print_sjf(const std::vector<Instruction>& instructions) {
         // Fill graph based on current instruction
         if (current_instruction_index != -1) {
             for (int i = 0; i < n; i++) {
-                
-
+                // Prints out either '_' or '#' for instructions in ready queue, otherwise ' ' for instructions that have not arrived yet
                 if (i < ready_queue.size()) {
+                    // Instruction is executing
                     if (i == current_instruction_index && ready_queue[current_instruction_index].get_burst_duration() != 0) {
                         graph[i] += "#";
                         ready_queue[current_instruction_index].reduce_burst_duration(1);
                         remaining_bursts--;
                     } else {
+                        // Instruction is either waiting or done
                         if (ready_queue[i].get_burst_duration() == 0) {
                             continue;
                         } else {
@@ -185,11 +186,13 @@ void print_sjf(const std::vector<Instruction>& instructions) {
                         }
                     }
                 } else {
+                    // Instruction has not arrived yet
                     graph[i] += " ";
                 }
             }
         }
 
+        // Go to next step in execution
         step++;
     }
 
