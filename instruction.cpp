@@ -10,6 +10,15 @@ Instruction::Instruction(std::string& name, int burst_duration, int arival_time)
     this->arival_time = arival_time;
 }
 
+// Desc: Default Class constructor
+// Auth: Lang Towl
+// Date: 11/7/2024
+Instruction::Instruction() {
+    this->name = "null";
+    this->burst_duration = 0;
+    this->arival_time = 0;
+}
+
 // Desc: Getter function for name
 // Auth: Lang Towl
 // Date: 11/7/2024
@@ -29,6 +38,13 @@ int Instruction::get_burst_duration() const {
 // Date: 11/7/2024
 int Instruction::get_arival_time() const {
     return this->arival_time;
+}
+
+// Desc: Decrease burst duration by 1
+// Auth: Lang Towl
+// Date: 11/13/2024
+void Instruction::reduce_burst_duration(int amount) {
+    this->burst_duration -= amount;
 }
 
 // Desc: Returns sorted array based on arival time
@@ -113,51 +129,67 @@ void print_sjf(const std::vector<Instruction>& instructions) {
     // Count number of instructions in vector
     int n = instructions.size();
 
-    // ready queue to store instructions that are ready to be executed
-    std::vector<Instruction> ready_queue;
-
-    // Scheduler graph
-    std::vector<std::string> graph;
-
-    // Manually add first instruction to ready queue and open graph
-    ready_queue.push_back(instructions[0]);
-    graph.push_back("");
-
-    // Counter to track number of executions
-    int counter = 0;
-
-    // Counter to track instructions that have been added to the ready queue and the current instruction
-    int current_instruction = 0;
+    // Count total iteration, current instruction, and next instruction
+    int step = 0;
+    int row = 0;
     int next_instruction = 1;
 
-    while (ready_queue.empty() != true) {
-        // Check to see if new instruction is ready
-        if (instructions[next_instruction].get_arival_time() == counter) {
+    // Instruction to store currently executing instruction
+    Instruction current_instruction = instructions[0];
+
+    // Ready queue to store instructions that are ready to be executed (defaults to first instruction)
+    std::vector<Instruction> ready_queue;
+    ready_queue.push_back(instructions[0]);
+
+    // Generate empty graph based on number of instructions
+    std::vector<std::string> graph;
+    for (int i = 0; i < n; i++) {
+        graph.push_back("");
+    }
+
+    // Code to run while ready queue is not empty and there are bursts still needing execution
+    while (!ready_queue.empty()) {
+        // Check to see if a new instruction has arrived
+        if (next_instruction < n && instructions[next_instruction].get_arival_time() == step) {
+            // Add new instruction to ready queue
             ready_queue.push_back(instructions[next_instruction]);
             next_instruction++;
-            graph.push_back("");
         }
 
-        graph[current_instruction] += "#";
-        ready_queue.erase(ready_queue.begin() + 0);
+        // Pick shortest instruction from ready queue
+        for (int i = 0; i < ready_queue.size(); i++) {
+            // Replace current instruction with instruction from ready queue
+            if (current_instruction.get_burst_duration() > ready_queue[i].get_burst_duration()) {
+                current_instruction = ready_queue[i];
+                row = i;
+            }
+        }
 
-        counter++;
+        // Fill next line of graph
+        for (int i = 0; i < n; i++) {
+            if (i < ready_queue.size()) {
+                if (i == row) {
+                    graph[row] += "#";
+                } else {
+                    graph[row] += "_";
+                }
+            } else {
+                graph[row] += " ";
+            }
+        }    
+
+        // Remove instruction if its burst has been depleted
+        for (int i = 0; i < ready_queue.size(); i++) {
+            if (ready_queue[i].get_burst_duration() == 0) {
+                ready_queue.erase(ready_queue.begin() + i);
+            }
+        } 
     }
 
-
-    // Print out graph
-    for (int i = 0 ; i < graph.size(); i++) {
-        std::cout << graph[i] << std::endl;
+    // Print graph
+    for (int i = 0; i < graph.size(); i++) {
+        std::cout << i + 1 << " > " <<  graph[i] << std::endl;
     }
-    /*
-    - Make vector to store initial instruction
-    - Start executing that instruction
-    - after each execution, check to see if the next instruction has arrive
-    - if it has, add it to vector
-    - check to see if new instruction has a shorter job then current instruction
-    - if it does, start executing it
-    - check to see if next instruciton is in, and if current instruction is longer then
-    */
 }
 
 // Desc: Print out shedule graph for RR

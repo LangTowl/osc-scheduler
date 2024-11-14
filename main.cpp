@@ -60,6 +60,8 @@ int main(){
         std::cout << i + 1 << " > "<< fifo_instructions[i].get_name() << " " << fifo_instructions[i].get_burst_duration() << " " << fifo_instructions[i].get_arival_time() << std::endl;
     }
 
+    std::cout << std::endl;
+
     // Graph FIFO instructions
     print_fifo(fifo_instructions);
 

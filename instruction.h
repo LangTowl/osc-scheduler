@@ -22,6 +22,11 @@ public:
     // Date: 11/7/2024
     Instruction(std::string& name, int burst_duration, int arival_time);
 
+    // Desc: Default Class constructor
+    // Auth: Lang Towl
+    // Date: 11/7/2024
+    Instruction();
+
     // Desc: Getter function for name
     // Auth: Lang Towl
     // Date: 11/7/2024
@@ -36,6 +41,11 @@ public:
     // Auth: Lang Towl
     // Date: 11/7/2024
     int get_arival_time() const;
+
+    // Desc: Decrease burst duration by 1
+    // Auth: Lang Towl
+    // Date: 11/13/2024
+    void reduce_burst_duration(int amount);
 };
 
 // Desc: Returns sorted array in case of FIFO and RR 
