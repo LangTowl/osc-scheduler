@@ -130,6 +130,7 @@ void print_sjf(const std::vector<Instruction>& instructions) {
     int n = instructions.size();        // Number of instructions to execute
     int next_instruction = 0;           // Next instruction to arrive
     int step = 0;                       // Tracks current step of execution  
+    int row = 0;                        // Tracks what row should be # in the graph
 
     // Compute total burst to be executed
     int remaining_bursts = 0;
@@ -159,23 +160,22 @@ void print_sjf(const std::vector<Instruction>& instructions) {
         // Determine index of shortest remianing bursts
         int current_instruction_index = -1;
         for (int i = 0; i < ready_queue.size(); i++) {
-            if (current_instruction_index == -1 || ready_queue[i].get_burst_duration() < ready_queue[current_instruction_index].get_burst_duration()) {
+            if ((current_instruction_index == -1 || ready_queue[i].get_burst_duration() < ready_queue[current_instruction_index].get_burst_duration()) && ready_queue[i].get_burst_duration() != 0) {
                 current_instruction_index = i;
             }
         }
+
+        //dont use current instruction index to choose which row to print to create row variable to track
+        // instead of removing, just check to see if its zero and if it isthen dont set it to current
 
         // Fill graph based on current instruction
         if (current_instruction_index != -1) {
             for (int i = 0; i < n; i++) {
                 if (i <= ready_queue.size()) {
-                    if (i == current_instruction_index) {
+                    if (i == current_instruction_index && ready_queue[current_instruction_index].get_burst_duration() != 0) {
                         graph[i] += "#";
                         ready_queue[current_instruction_index].reduce_burst_duration(1);
                         remaining_bursts--;
-
-                        if (ready_queue[current_instruction_index].get_burst_duration() <= 0) {
-                            ready_queue.erase(ready_queue.begin() + current_instruction_index);
-                        }
                     } else {
                         graph[i] += "_";
                     }
@@ -186,13 +186,13 @@ void print_sjf(const std::vector<Instruction>& instructions) {
         }
 
         step++;
-
-        for (int i = 0; i < graph.size(); i++) {
-            std::cout << graph[i] << std::endl;
-        }
-
-        std::cout << std::endl;
     }
+
+    for (int i = 0; i < graph.size(); i++) {
+        std::cout << graph[i] << std::endl;
+    }
+
+    std::cout << std::endl;
 }
 
 /*
