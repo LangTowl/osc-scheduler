@@ -88,20 +88,20 @@ int main(){
 
     //****************************** Round Robin ******************************//
 
-    // std::cout << "Scheduled with Round Robin:" << std::endl << std::endl;
+    std::cout << "Scheduled with Round Robin:" << std::endl << std::endl;
 
-    // // Sort array based on FIFO
-    // std::vector<Instruction> rr_instructions = sort_based_on_arival(instructions);
+    // Sort array based on FIFO
+    std::vector<Instruction> rr_instructions = sort_based_on_arival(instructions);
 
-    // // Print out reference
-    // for (int i = 0; i < rr_instructions.size(); i++) {
-    //     std::cout << i + 1 << " > "<< rr_instructions[i].get_name() << " " << rr_instructions[i].get_burst_duration() << " " << rr_instructions[i].get_arival_time() << std::endl;
-    // }
+    // Print out reference
+    for (int i = 0; i < rr_instructions.size(); i++) {
+        std::cout << i + 1 << " > "<< rr_instructions[i].get_name() << " " << rr_instructions[i].get_burst_duration() << " " << rr_instructions[i].get_arival_time() << std::endl;
+    }
 
-    // std::cout << std::endl;
+    std::cout << std::endl;
 
-    // // Graph RR instructions
-    // print_rr(rr_instructions);
+    // Graph RR instructions
+    print_rr(rr_instructions);
 
     // Close the file
     file.close(); 

@@ -127,10 +127,9 @@ void print_fifo(const std::vector<Instruction>& instructions) {
 // Date: 11/7/2024
 void print_sjf(const std::vector<Instruction>& instructions) {
     // Scheduling parameters
-    int n = instructions.size();        // Number of instructions to execute
+    const int n = instructions.size();  // Number of instructions to execute
     int next_instruction = 0;           // Next instruction to arrive
     int step = 0;                       // Tracks current step of execution  
-    int row = 0;                        // Tracks what row should be # in the graph
 
     // Compute total burst to be executed
     int remaining_bursts = 0;
@@ -196,7 +195,7 @@ void print_sjf(const std::vector<Instruction>& instructions) {
         step++;
     }
 
-    // Show graph for shortest job first
+    // Show graph
     for (int i = 0; i < graph.size(); i++) {
         std::cout << graph[i] << std::endl;
     }
@@ -208,53 +207,72 @@ void print_sjf(const std::vector<Instruction>& instructions) {
 // Auth: Lang Towl
 // Date: 11/7/2024
 void print_rr(const std::vector<Instruction>& instructions) {
-    // Count number of instructions in vector
-    int n = instructions.size();
+    // Scheduling parameters
+    const int n = instructions.size();  // Number of instructions to execute
+    int next_instruction = 0;           // Next instruction to arrive
+    int step = 0;                       // Tracks current step of execution
+    int row = 0;                        // Tracks which row should be executed
 
-    // Vector to store remaining burst times
-    std::vector<int> remaining_bursts;
+    // Compute total burst to be executed
+    int remaining_bursts = 0;
 
     for (int i = 0; i < n; i++) {
-        remaining_bursts.push_back(instructions[i].get_burst_duration());
+        remaining_bursts += instructions[i].get_burst_duration();
     }
 
-    // Print graph
-    int iterations = 0;
+    // Vector to store instructions that are ready to be printed
+    std::vector<Instruction> ready_queue;
+
+    // Create empty graph
+    std::vector<std::string> graph;
+
     for (int i = 0; i < n; i++) {
-        std::cout << i + 1 << " > ";
+        graph.push_back(std::to_string(i + 1) + " > ");
+    }  
 
-        // While loop prints # when its programs 'turn' and _ otherwise
-        int counter = 0;
-        while (true) {
-            if (counter > (n - 1)) {
-                counter = 0;
-            }
-
-            if (iterations >= instructions[i].get_arival_time()) {
-                // Do nothing
-            } else {
-                iterations++;
-                std::cout << " ";
-                continue;
-            }
-
-            if (counter == i) {
-                std::cout << "#";
-
-                counter++;
-
-                if (remaining_bursts[i] != 1) {
-                    remaining_bursts[i]--;
-                } else {
-                    break;
-                }
-            } else {
-                std::cout << "_";
-                counter++;
-            }
+    // Loop to run until all bursts have been depleated 
+    while (remaining_bursts != 0) {
+        // Cap row at length of graph
+        if (row == graph.size()) {
+            row = 0;
         }
 
-        iterations++;
+        // Check to see if new instruction has arrived
+        if (instructions[next_instruction].get_arival_time() == step) {
+            // Add instruction to ready queue & update next instruction
+            ready_queue.push_back(instructions[next_instruction]);
+            next_instruction++;
+        }
+
+        // Fill graph
+        for (int i = 0; i < graph.size(); i++) {
+            if (i < ready_queue.size()) {
+                if (i == row && ready_queue[row].get_burst_duration() != 0) {
+                    graph[row] += "#";
+                    ready_queue[row].reduce_burst_duration(1);
+                    remaining_bursts--;
+                } else {
+                    if (ready_queue[i].get_burst_duration() == 0) {
+                        continue;
+                    } else {
+                        graph[row] += "_";
+                    }
+                }
+            } else {
+                graph[row] += " ";
+            }
+        }
+        
+
+        // Update parameters
+        step++;
+        row++;
+
+        // Show graph
+        for (int i = 0; i < graph.size(); i++) {
+            std::cout << graph[i] << std::endl;
+        }
+
         std::cout << std::endl;
-    } 
+    }
 }
