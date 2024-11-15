@@ -237,10 +237,12 @@ void print_rr(const std::vector<Instruction>& instructions) {
     // Vector to store arrival buffers for instructions that arrive at the same time
     std::vector<std::string> buffer;
 
+    // Make buffer empty
     for (int i = 0; i < n; i++) {
         buffer.push_back("");
     }
 
+    // Add a wait in case of two instructions arruving at the same time
     for (int i = 0; i < n; i++) {
         if (i != n -1 && instructions[i].get_arival_time() == instructions[i + 1].get_arival_time()) {
             buffer[i + 1] += "_";
@@ -273,27 +275,32 @@ void print_rr(const std::vector<Instruction>& instructions) {
 
         // Fill graph
         for (int i = 0; i < graph.size(); i++) {
-
+            // For the instrctions that have arrived
             if (i < ready_queue.size()) {
                 if (row == i && ready_queue[i].get_burst_duration() != 0) {
+                    // Consume and clear buffer, if there is one
                     graph[i] += buffer[i];
                     buffer[i] = "";
 
+                    // Execute and consume a burst 
                     graph[i] += "#";
                     ready_queue[i].reduce_burst_duration(1);
                     remaining_bursts -= 1;
 
+                    // Wait however many instructions still remain
                     if (ready_queue[i].get_burst_duration() != 0) {
                         for (int j = 0; j < instructions_to_execute - 1; j++) {
                             graph[i] += "_";
                         }
                     }
 
+                    // Remove instruction if all bursts have been consumed
                     if (ready_queue[i].get_burst_duration() == 0) {
                         instructions_to_execute--;
                     }
                 }
             } else {
+                // For the instructions that have yet to arrive
                 graph[i] += " ";
             }
         }
