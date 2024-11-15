@@ -84,8 +84,6 @@ int main(){
     // Graph SJF instructions
     print_sjf(sjf_instructions);
 
-    std::cout << std::endl;
-
     //****************************** Round Robin ******************************//
 
     std::cout << "Scheduled with Round Robin:" << std::endl << std::endl;

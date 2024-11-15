@@ -69,9 +69,6 @@ std::vector<Instruction> sort_based_on_arival(const std::vector<Instruction>& in
             // Swap instructions if one is bigger then the other
             if (temp_instructions[j].get_arival_time() > temp_instructions[j + 1].get_arival_time()) {
                 std::swap(temp_instructions[j], temp_instructions[j + 1]);
-            // If arrival times are equal, adjust the next instruction's arrival time
-            } else if (temp_instructions[j].get_arival_time() == temp_instructions[j + 1].get_arival_time()) {
-                temp_instructions[j + 1].update_arrival_time(1); 
             }
         }
     }
@@ -237,6 +234,19 @@ void print_rr(const std::vector<Instruction>& instructions) {
     // Vector to store instructions that are ready to be printed
     std::vector<Instruction> ready_queue;
 
+    // Vector to store arrival buffers for instructions that arrive at the same time
+    std::vector<std::string> buffer;
+
+    for (int i = 0; i < n; i++) {
+        buffer.push_back("");
+    }
+
+    for (int i = 0; i < n; i++) {
+        if (i != n -1 && instructions[i].get_arival_time() == instructions[i + 1].get_arival_time()) {
+            buffer[i + 1] += "_";
+        }
+    }
+
     // Create empty graph
     std::vector<std::string> graph;
 
@@ -266,6 +276,9 @@ void print_rr(const std::vector<Instruction>& instructions) {
 
             if (i < ready_queue.size()) {
                 if (row == i && ready_queue[i].get_burst_duration() != 0) {
+                    graph[i] += buffer[i];
+                    buffer[i] = "";
+
                     graph[i] += "#";
                     ready_queue[i].reduce_burst_duration(1);
                     remaining_bursts -= 1;
@@ -288,12 +301,10 @@ void print_rr(const std::vector<Instruction>& instructions) {
         // Update parameters
         step++;
         row++;
+    }
 
-        // Show graph
-        for (int i = 0; i < graph.size(); i++) {
-            std::cout << graph[i] << std::endl;
-        }
-
-        std::cout << std::endl;
+    // Show graph
+    for (int i = 0; i < graph.size(); i++) {
+        std::cout << graph[i] << std::endl;
     }
 }
