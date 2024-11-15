@@ -73,4 +73,14 @@ void print_sjf(const std::vector<Instruction>& instructions);
 // Date: 11/7/2024
 void print_rr(const std::vector<Instruction>& instructions);
 
+// Desc: Compute performance evaluators for FIFO
+// Auth: Lang Towl
+// Date: 11/15/2024
+void calculate_fifo(const std::vector<Instruction>& instructions);
+
+// Desc: Compute performance evaluators for SJF
+// Auth: Lang Towl
+// Date: 11/15/2024
+void calculate_sjf(const std::vector<Instruction>& instructions);
+
 #endif

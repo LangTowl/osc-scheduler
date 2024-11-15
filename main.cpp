@@ -67,6 +67,10 @@ int main(){
 
     std::cout << std::endl;
 
+    calculate_fifo(fifo_instructions);
+
+    std::cout << std::endl;
+
     //****************************** Shortest Job First ******************************//
 
     std::cout << "Scheduled with Shortest Job First:" << std::endl << std::endl;
@@ -83,6 +87,10 @@ int main(){
 
     // Graph SJF instructions
     print_sjf(sjf_instructions);
+
+    calculate_sjf(sjf_instructions);
+
+    std::cout << std::endl;
 
     //****************************** Round Robin ******************************//
 

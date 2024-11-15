@@ -267,6 +267,7 @@ void print_rr(const std::vector<Instruction>& instructions) {
         for (int i = next_instruction; i < n; i++) {
             if (instructions[i].get_arival_time() == step) {
                 ready_queue.push_back(instructions[i]);
+                row = 0;
             } else {
                 next_instruction = i;
                 break;
@@ -315,3 +316,93 @@ void print_rr(const std::vector<Instruction>& instructions) {
         std::cout << graph[i] << std::endl;
     }
 }
+
+// Desc: Compute performance evaluators for FIFO
+// Auth: Lang Towl
+// Date: 11/15/2024
+void calculate_fifo(const std::vector<Instruction>& instructions) {
+    double total_waiting_time = 0.0;
+    double total_response_time = 0.0;
+    double time_to_complete = 0;
+
+    // Vector to store arrival time offset
+    std::vector<int> arrival_time_offset;
+
+    for (int i = 1; i < instructions.size(); i++) {
+        arrival_time_offset.push_back(instructions[i].get_arival_time());
+    }
+
+    // Compute total waiting time and total response time
+    for (int i = 0; i < instructions.size() - 1; i++) {
+        int temp = 0;
+        for (int j = i; j >= 0; j--) {
+            temp += (instructions[j].get_burst_duration());
+        }
+        total_waiting_time += temp - arrival_time_offset[i];
+        total_response_time += temp - arrival_time_offset[i];
+    }
+
+    // Compute total time to complete
+    for (int i = 0; i < instructions.size(); i++) {
+        time_to_complete += instructions[i].get_burst_duration() + arrival_time_offset[i];
+    }
+
+    // Print the results
+    std::cout << "Average Waiting Time: " << total_waiting_time / instructions.size() << std::endl;
+    std::cout << "Average Response Time: " << total_response_time / instructions.size() << std::endl;
+    std::cout << "Throughput over 10 cycles: " << ((instructions.size() + 1) / time_to_complete) * 10 << std::endl;
+}
+
+// Desc: Compute performance evaluators for SJF
+// Auth: Lang Towl
+// Date: 11/15/2024
+void calculate_sjf(const std::vector<Instruction>& instructions) {
+    double total_waiting_time = 0.0;
+    double total_response_time = 0.0;
+    double total_time_to_complete = 0.0;
+
+    int current_time = 0;
+    std::vector<bool> completed(instructions.size(), false); // Track completed instructions
+    int completed_count = 0;
+
+    while (completed_count < instructions.size()) {
+        // Find the shortest job available at the current time
+        int shortest_index = -1;
+        for (int i = 0; i < instructions.size(); ++i) {
+            if (!completed[i] && instructions[i].get_arival_time() <= current_time) {
+                if (shortest_index == -1 || 
+                    instructions[i].get_burst_duration() < instructions[shortest_index].get_burst_duration()) {
+                    shortest_index = i;
+                }
+            }
+        }
+
+        if (shortest_index == -1) {
+            // If no process is ready, advance time
+            current_time++;
+            continue;
+        }
+
+        // Process the selected instruction
+        const Instruction& inst = instructions[shortest_index];
+        int wait_time = current_time - inst.get_arival_time();
+        int response_time = wait_time; // Since it starts immediately after waiting
+
+        // Update totals
+        total_waiting_time += wait_time;
+        total_response_time += response_time;
+        current_time += inst.get_burst_duration(); // Execute the instruction
+        total_time_to_complete = current_time;
+        completed[shortest_index] = true;
+        completed_count++;
+    }
+
+    // Compute throughput
+    double throughput = (double)completed_count / total_time_to_complete * 10.0;
+
+    // Print the results
+    std::cout << "Average Waiting Time: " << total_waiting_time / instructions.size() << std::endl;
+    std::cout << "Average Response Time: " << total_response_time / instructions.size() << std::endl;
+    std::cout << "Throughput over 10 cycles: " << throughput << std::endl;
+}
+
