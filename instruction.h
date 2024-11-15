@@ -42,10 +42,15 @@ public:
     // Date: 11/7/2024
     int get_arival_time() const;
 
-    // Desc: Decrease burst duration by 1
+    // Desc: Decrease burst duration by passed amount
     // Auth: Lang Towl
     // Date: 11/13/2024
     void reduce_burst_duration(int amount);
+
+    // Desc: Update arrival time by passed amount
+    // Auth: Lang Towl
+    // Date: 11/14/2024
+    void update_arrival_time(int amount);
 };
 
 // Desc: Returns sorted array in case of FIFO and RR 

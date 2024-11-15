@@ -47,26 +47,36 @@ void Instruction::reduce_burst_duration(int amount) {
     this->burst_duration -= amount;
 }
 
+// Desc: Update arrival time by passed amount
+// Auth: Lang Towl
+// Date: 11/14/2024
+void Instruction::update_arrival_time(int amount) {
+    this->arival_time += amount;
+}
+
 // Desc: Returns sorted array based on arival time
 // Auth: Lang Towl
 // Date: 11/7/2024
+// Corrected function signature
 std::vector<Instruction> sort_based_on_arival(const std::vector<Instruction>& instructions) {
-    // Make temporary copy of array to be returned later
+    // Make a temporary copy of the vector to be sorted and returned
     std::vector<Instruction> temp_instructions = instructions;
 
-    // Count the number of instructions in vector
+    // Bubble sort algorithm with duplicate handling
     int n = temp_instructions.size();
-
-    // Bubble sort algorithm
     for (int i = 0; i < n - 1; i++) {
         for (int j = 0; j < n - 1; j++) {
+            // Swap instructions if one is bigger then the other
             if (temp_instructions[j].get_arival_time() > temp_instructions[j + 1].get_arival_time()) {
                 std::swap(temp_instructions[j], temp_instructions[j + 1]);
+            // If arrival times are equal, adjust the next instruction's arrival time
+            } else if (temp_instructions[j].get_arival_time() == temp_instructions[j + 1].get_arival_time()) {
+                temp_instructions[j + 1].update_arrival_time(1); 
             }
         }
     }
 
-    // Return sorted vector
+    // Return the sorted and adjusted vector
     return temp_instructions;
 }
 
@@ -211,10 +221,11 @@ void print_sjf(const std::vector<Instruction>& instructions) {
 // Date: 11/7/2024
 void print_rr(const std::vector<Instruction>& instructions) {
     // Scheduling parameters
-    const int n = instructions.size();  // Number of instructions to execute
-    int next_instruction = 0;           // Next instruction to arrive
-    int step = 0;                       // Tracks current step of execution
-    int row = 0;                        // Tracks which row should be executed
+    const int n = instructions.size();                  // Number of instructions to execute
+    int next_instruction = 0;                           // Next instruction to arrive
+    int step = 0;                                       // Tracks current step of execution
+    int row = 0;                                        // Tracks which row should be executed
+    int instructions_to_execute = instructions.size();  // Tracks remaining instructions that need to be executed
 
     // Compute total burst to be executed
     int remaining_bursts = 0;
@@ -240,7 +251,7 @@ void print_rr(const std::vector<Instruction>& instructions) {
             row = 0;
         }
 
-        // Check to see if new instruction has arrived
+        // Check to see if new instruction has arrived (handles duplicates)
         for (int i = next_instruction; i < n; i++) {
             if (instructions[i].get_arival_time() == step) {
                 ready_queue.push_back(instructions[i]);
@@ -252,33 +263,37 @@ void print_rr(const std::vector<Instruction>& instructions) {
 
         // Fill graph
         for (int i = 0; i < graph.size(); i++) {
+
             if (i < ready_queue.size()) {
                 if (row == i && ready_queue[i].get_burst_duration() != 0) {
                     graph[i] += "#";
                     ready_queue[i].reduce_burst_duration(1);
                     remaining_bursts -= 1;
-                } else {
+
                     if (ready_queue[i].get_burst_duration() != 0) {
-                        graph[i] += "_";
-                    } else {
-                        graph[i] += "";
+                        for (int j = 0; j < instructions_to_execute - 1; j++) {
+                            graph[i] += "_";
+                        }
+                    }
+
+                    if (ready_queue[i].get_burst_duration() == 0) {
+                        instructions_to_execute--;
                     }
                 }
             } else {
                 graph[i] += " ";
             }
         }
-        
 
         // Update parameters
         step++;
         row++;
-    }
 
-    // Show graph
-    for (int i = 0; i < graph.size(); i++) {
-        std::cout << graph[i] << std::endl;
-    }
+        // Show graph
+        for (int i = 0; i < graph.size(); i++) {
+            std::cout << graph[i] << std::endl;
+        }
 
-    std::cout << std::endl;
+        std::cout << std::endl;
+    }
 }
