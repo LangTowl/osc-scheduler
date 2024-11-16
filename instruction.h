@@ -83,4 +83,9 @@ void calculate_fifo(const std::vector<Instruction>& instructions);
 // Date: 11/15/2024
 void calculate_sjf(const std::vector<Instruction>& instructions);
 
+// Desc: Compute performance evaluators for RR
+// Auth: Lang Towl
+// Date: 11/15/2024
+void calculate_rr(const std::vector<Instruction>& instructions);
+
 #endif

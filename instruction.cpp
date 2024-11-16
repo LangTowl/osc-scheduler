@@ -406,3 +406,85 @@ void calculate_sjf(const std::vector<Instruction>& instructions) {
     std::cout << "Throughput over 10 cycles: " << throughput << std::endl;
 }
 
+// Desc: Compute performance evaluators for Round Robin
+// Auth: Lang Towl
+// Date: 11/15/2024
+void calculate_rr(const std::vector<Instruction>& instructions) {
+    int time_quantum = 1;
+    double total_waiting_time = 0.0;
+    double total_response_time = 0.0;
+    double total_time_to_complete = 0.0;
+
+    int current_time = 0;
+    int completed_count = 0;
+    std::vector<int> remaining_burst(instructions.size());
+    std::vector<int> first_response_time(instructions.size(), -1);
+    std::vector<int> arrival_time(instructions.size());
+    std::vector<bool> completed(instructions.size(), false);
+
+    for (int i = 0; i < instructions.size(); ++i) {
+        remaining_burst[i] = instructions[i].get_burst_duration();
+        arrival_time[i] = instructions[i].get_arival_time();
+    }
+
+    // Queue to manage ready processes
+    std::queue<int> ready_queue;
+    int index = 0;
+
+    // Add processes to the ready queue as they arrive
+    while (completed_count < instructions.size()) {
+        while (index < instructions.size() && instructions[index].get_arival_time() <= current_time) {
+            ready_queue.push(index);
+            index++;
+        }
+
+        if (ready_queue.empty()) {
+            current_time++;
+            continue;
+        }
+
+        // Process the next instruction in the queue
+        int current_instruction = ready_queue.front();
+        ready_queue.pop();
+
+        // Update response time if this is the first execution of the process
+        if (first_response_time[current_instruction] == -1) {
+            first_response_time[current_instruction] = current_time - arrival_time[current_instruction];
+        }
+
+        int burst_time = std::min(time_quantum, remaining_burst[current_instruction]);
+        current_time += burst_time;
+        remaining_burst[current_instruction] -= burst_time;
+
+        // Add newly arrived processes during this time slice to the queue
+        while (index < instructions.size() && instructions[index].get_arival_time() <= current_time) {
+            ready_queue.push(index);
+            index++;
+        }
+
+        if (remaining_burst[current_instruction] > 0) {
+            // Process is not completed, re-add to the queue
+            ready_queue.push(current_instruction);
+        } else {
+            // Process is completed
+            completed[current_instruction] = true;
+            completed_count++;
+
+            int finish_time = current_time;
+            int waiting_time = finish_time - arrival_time[current_instruction] - instructions[current_instruction].get_burst_duration();
+            total_waiting_time += waiting_time;
+
+            total_response_time += first_response_time[current_instruction];
+        }
+    }
+
+    total_time_to_complete = current_time;
+
+    // Compute throughput
+    double throughput = (double)completed_count / total_time_to_complete * 10.0;
+
+    // Print the results
+    std::cout << "Average Waiting Time: " << total_waiting_time / instructions.size() << std::endl;
+    std::cout << "Average Response Time: " << total_response_time / instructions.size() << std::endl;
+    std::cout << "Throughput over 10 cycles: " << throughput << std::endl;
+}

@@ -109,6 +109,10 @@ int main(){
     // Graph RR instructions
     print_rr(rr_instructions);
 
+    std::cout << std::endl;
+
+    calculate_rr(rr_instructions);
+
     // Close the file
     file.close(); 
     return 0;
