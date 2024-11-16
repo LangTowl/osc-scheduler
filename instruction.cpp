@@ -323,34 +323,30 @@ void print_rr(const std::vector<Instruction>& instructions) {
 void calculate_fifo(const std::vector<Instruction>& instructions) {
     double total_waiting_time = 0.0;
     double total_response_time = 0.0;
-    double time_to_complete = 0;
+    double time_to_complete = 0.0;
+    double current_time = 0.0; 
 
-    // Vector to store arrival time offset
-    std::vector<int> arrival_time_offset;
-
-    for (int i = 1; i < instructions.size(); i++) {
-        arrival_time_offset.push_back(instructions[i].get_arival_time());
-    }
-
-    // Compute total waiting time and total response time
-    for (int i = 0; i < instructions.size() - 1; i++) {
-        int temp = 0;
-        for (int j = i; j >= 0; j--) {
-            temp += (instructions[j].get_burst_duration());
-        }
-        total_waiting_time += temp - arrival_time_offset[i];
-        total_response_time += temp - arrival_time_offset[i];
-    }
-
-    // Compute total time to complete
     for (int i = 0; i < instructions.size(); i++) {
-        time_to_complete += instructions[i].get_burst_duration() + arrival_time_offset[i];
+        // Adjust current time to reflect the arrival of the next instruction.
+        if (current_time < instructions[i].get_arival_time()) {
+            current_time = instructions[i].get_arival_time();
+        }
+
+        // Update waiting time, response time, & current time
+        total_waiting_time += current_time - instructions[i].get_arival_time();
+        total_response_time += current_time - instructions[i].get_arival_time();
+        current_time += instructions[i].get_burst_duration();
     }
 
-    // Print the results
+    time_to_complete = current_time;
+
+    // COmpute throughput
+    double throughput = instructions.size() / (time_to_complete / 10.0);
+
+    // Print the results.
     std::cout << "Average Waiting Time: " << total_waiting_time / instructions.size() << std::endl;
     std::cout << "Average Response Time: " << total_response_time / instructions.size() << std::endl;
-    std::cout << "Throughput over 10 cycles: " << ((instructions.size() + 1) / time_to_complete) * 10 << std::endl;
+    std::cout << "Throughput over 10 cycles: " << throughput << std::endl;
 }
 
 // Desc: Compute performance evaluators for SJF
@@ -360,10 +356,10 @@ void calculate_sjf(const std::vector<Instruction>& instructions) {
     double total_waiting_time = 0.0;
     double total_response_time = 0.0;
     double total_time_to_complete = 0.0;
-
     int current_time = 0;
-    std::vector<bool> completed(instructions.size(), false); // Track completed instructions
     int completed_count = 0;
+
+    std::vector<bool> completed(instructions.size(), false); 
 
     while (completed_count < instructions.size()) {
         // Find the shortest job available at the current time
@@ -414,20 +410,21 @@ void calculate_rr(const std::vector<Instruction>& instructions) {
     double total_waiting_time = 0.0;
     double total_response_time = 0.0;
     double total_time_to_complete = 0.0;
-
     int current_time = 0;
     int completed_count = 0;
+
     std::vector<int> remaining_burst(instructions.size());
     std::vector<int> first_response_time(instructions.size(), -1);
     std::vector<int> arrival_time(instructions.size());
     std::vector<bool> completed(instructions.size(), false);
 
+    // Update remaining bursts and arrival times
     for (int i = 0; i < instructions.size(); ++i) {
         remaining_burst[i] = instructions[i].get_burst_duration();
         arrival_time[i] = instructions[i].get_arival_time();
     }
 
-    // Queue to manage ready processes
+    // Queue to track ready processes
     std::queue<int> ready_queue;
     int index = 0;
 
@@ -438,6 +435,7 @@ void calculate_rr(const std::vector<Instruction>& instructions) {
             index++;
         }
 
+        // Proceed to next cycle if ready queue is empty
         if (ready_queue.empty()) {
             current_time++;
             continue;
@@ -452,6 +450,7 @@ void calculate_rr(const std::vector<Instruction>& instructions) {
             first_response_time[current_instruction] = current_time - arrival_time[current_instruction];
         }
 
+        // Compute bust time and update current time, then decrememnt remaining bursts to execute
         int burst_time = std::min(time_quantum, remaining_burst[current_instruction]);
         current_time += burst_time;
         remaining_burst[current_instruction] -= burst_time;
@@ -477,7 +476,7 @@ void calculate_rr(const std::vector<Instruction>& instructions) {
             total_response_time += first_response_time[current_instruction];
         }
     }
-
+    
     total_time_to_complete = current_time;
 
     // Compute throughput
